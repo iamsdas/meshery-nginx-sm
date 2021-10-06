@@ -1,13 +1,12 @@
 name: Meshery Nginx Service Mesh Pattern Components Generator
-on:
-  push:
-    branches:
-      - 'master'
+on: push
+# branches:
+#   - 'master'
 
 jobs:
   check_nginxsm_version:
     name: Check Nginx Service Mesh Version
-    if: github.repository == 'meshery/meshery-nginx-sm'
+    # if: github.repository == 'meshery/meshery-nginx-sm'
     runs-on: ubuntu-latest
     outputs:
       NEW_NGINXSM_VERSION: ${{ steps.glrt.outputs.release }}
@@ -35,7 +34,7 @@ jobs:
   generator:
     name: Generate and push OAM definitions
     needs: [check_nginxsm_version]
-    if: ${{ github.repository == 'meshery/meshery-nginx-sm' && !needs.check_nginxsm_version.outputs.EXISTS }}
+    if: ${{ !needs.check_nginxsm_version.outputs.EXISTS }}
     env:
       NEW_NGINXSM_VERSION: ${{ needs.check_nginxsm_version.outputs.NEW_NGINXSM_VERSION }}
     runs-on: ubuntu-latest
@@ -45,7 +44,7 @@ jobs:
         with:
           fetch-depth: 1
           token: ${{ secrets.GH_ACCESS_TOKEN }}
-          ref: 'master'
+          # ref: 'master'
       - name: Get Nginx Service Mesh manifests
         run: |
           mkdir ./nginxsm-crds
@@ -105,4 +104,4 @@ jobs:
           commit_author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
           commit_options: '--signoff'
           commit_message: '[Patterns] Pattern components generated from latest Nginx Service Mesh manifests'
-          branch: master
+          branch: tmp-ci
